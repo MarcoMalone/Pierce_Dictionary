@@ -1,0 +1,142 @@
+---
+title: "Wordnik Definition Code"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(birdnik)
+library(purrr)
+library(stringr)
+```
+
+```{r}
+century_string <- word_definitions(key = "d6utmgsz03mq4r1uvr5yiwtqiv5k1tog16o0l821vkggi29hd", source_dicts="century", words = c("car "))
+message(century_string)
+```
+
+```{r}
+century_string[[1]][[2]]$text
+```
+
+```{r}
+definitions<-get_text(century_string)
+# length(definitions$text)
+definitions
+```
+
+```{r}
+df = readLines('century_words.txt')
+split_dict<-strsplit(df, ", ")[[1]]
+#split_dict<-split_dict[1:20]
+```
+
+```{r}
+get_definition <- function(word){
+  out <- tryCatch(
+      # This is what I want to do...
+    {
+    #print(word)
+    century_string <- word_definitions(key = "d6utmgsz03mq4r1uvr5yiwtqiv5k1tog16o0l821vkggi29hd", source_dicts="century", words = c(word))
+    full_word<-get_text(century_string)
+    definitions<-full_word$text
+    definition_string = paste(word, ":\n", sep="")
+    num_definitions = length(definitions)
+    #print(num_definitions)
+    for (j in 1:num_definitions) {
+      cleaned_def<-str_replace_all(definitions[[j]], "<.+?>", "")
+      #message(cleaned_def)
+      definition_string = paste(definition_string, "  ",as.character(j), ") ", cleaned_def, "\n", sep="")
+  }
+    return(definition_string)
+    # return()
+      },
+        # ... but if an error occurs, instead post this: 
+    error=function(error_message) {
+      message("This is the word for the error:",word)
+      message("Here's the original error message:")
+      message(error_message)
+      message("\n")
+      if (str_detect(word,"[[:upper:]]")){
+        get_definition(str_to_lower(word))
+        }else{
+          # return(paste(word, ", ", sep=""))}}
+          return(paste(word, ": None", sep=""))}      }
+    )
+  return(out)
+}
+```
+
+```{r}
+# for (i in 1:length(split_dict)) {
+#   word<-split_dict[[i]]
+#   full_definition<-get_definition(word)
+#   print(full_definition)
+#   cat(full_definition, sep ="\n \n", file="defined_century_dict6.txt" , append=TRUE)
+# }
+sink("defined_century_dict31.txt")
+for (i in 1:length(split_dict)) {
+  word<-split_dict[[i]]
+  #print(word)
+  full_definition<-get_definition(word)
+  #Sys.sleep(sample(1:5, 1))
+  Sys.sleep(12)
+  cat("\n")
+  cat(full_definition)
+  cat("\n")
+}
+sink()
+```
+
+```{r}
+#<\\w*>
+s="Hi, <dfdsf> my na<mndhhs>me is Marco <sjjjsk>."
+s="A prefix, in <em>ado</em>, originally <internalXref urlencoded=\"at%20do\">at do</internalXref>, northern English infinitive, equivalent to English <internalXref urlencoded=\"to%20do\">to do</internalXref>. See <internalXref urlencoded=\"ado\">ado</internalXref>."
+s<-str_replace_all(s, "<.+?>", "")
+message(s)
+```
+
+```{r}
+m<-"Michigan"
+# message(str_detect(m,"[[:upper:]]"))
+if (str_detect(m,"[[:upper:]]")){
+  message(str_to_lower(m))
+}else{
+  message("no")
+}
+```
+
+```{r}
+df2 = readLines('defined_century_dict31.txt')
+df2 = gsub("\\n", "", df2)
+# split_dict2<-strsplit(df2)[[1]]
+sink("defined_century_dict32.txt")
+cat(df2)
+sink()
+```
+
+```{r}
+df2 = readLines('defined_century_dict32.txt')
+# df3 = str_replace_all(df2, "/\\\\s+?/", "boo")
+df3 = str_squish(df2)
+sink("defined_century_dict38.txt")
+cat(df3)
+sink()
+
+```
+
+```{r}
+df4 = readLines('defined_century_dict38.txt')
+split_dict2<-strsplit(df4, ", ")[[1]]
+sink("defined_century_dict40.txt")
+for (i in 1:length(split_dict2)) {
+  cat("\n")
+  cat(split_dict2[[i]])
+  cat("\n")
+}
+sink()
+```
+
